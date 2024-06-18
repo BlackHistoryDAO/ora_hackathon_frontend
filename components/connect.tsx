@@ -8,10 +8,13 @@ import { Button } from './ui/button';
 
 const ConnectWallect = () => {
   const { sdk, connecting, connected, account } = useSDK();
+  const [signedMessage, setSignedMessage] = React.useState<string>("");
 
   const handleConnect = async () => {
     try {
-      await sdk?.connect();
+      const message = "Connect to this Ora hackacton winner Dapp";
+      const signature = await sdk?.connectAndSign({msg: message});
+      setSignedMessage(signature);
     } catch (err) {
       console.warn(`No accounts found`, err);
     }
@@ -40,9 +43,13 @@ const ConnectWallect = () => {
           </PopoverContent>
         </Popover>
       ) : (
-        <Button disabled={connecting} onClick={handleConnect}>
-          Connect Wallet
-        </Button>
+        <div className='flex flex-col gap-y-3'>
+          <Button disabled={connecting} onClick={handleConnect}>
+            Connect Wallet
+          </Button>
+          {signedMessage && <p>Signed Message: {signedMessage}</p>}
+        </div>
+
       )}
     </div>
   )
