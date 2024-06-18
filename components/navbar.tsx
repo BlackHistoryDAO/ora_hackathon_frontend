@@ -5,6 +5,7 @@ import { ThemeToggle } from "./theme-toggle"
 import Background from "./background"
 import ConnectWallect from "./connect";
 import { MetaMaskProvider } from "@metamask/sdk-react";
+import ConnectContract from "./connectContract";
 
 const Navbar = () => {
   const host =
@@ -37,6 +38,9 @@ const Navbar = () => {
               height={40}
             />
           </div>
+        </div>
+        <div className='flex gap-6'>
+          <ConnectContract />
         </div>
       </div>
     </Background>
