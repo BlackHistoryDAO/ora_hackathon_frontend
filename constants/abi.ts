@@ -175,4 +175,5 @@ export const abi = [
     type: "function",
   },
 ];
+
 export const contract_address = '0x2a8b43eBa70bC728066FB60e18E78414768cC148';
