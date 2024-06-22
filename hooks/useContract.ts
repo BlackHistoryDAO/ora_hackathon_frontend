@@ -1,86 +1,63 @@
 import { useState, useEffect, ChangeEvent } from 'react';
-import { ethers } from 'ethers';
-import { abi, contract_address } from "@/constants/abi";
+import { ethers, BigNumber } from 'ethers';
+import { abi as contractABI, contract_address } from "@/constants/abi";
+import toast from 'react-hot-toast';
 
-// Define the type for the hook's return value
-interface UseContract {
-  transactionHash: string | null;
-  error: string | null;
-  modelId: number;
-  prompt: string;
-  value: string;
-  result: string | null;
-  setModelId: (modelId: number) => void;
-  setPrompt: (prompt: string) => void;
-  setValue: (value: string) => void;
-  handleInputChange: (setter: React.Dispatch<React.SetStateAction<any>>) => (e: ChangeEvent<HTMLInputElement>) => void;
-  interactWithContract: (methodName: string, args: any[], value: string) => Promise<void>;
+const contractAddress = contract_address;
+
+interface ContractResult {
+  requestId: string;
+  tokenId: string;
 }
 
-export const useContract = (): UseContract => {
+export const useContract = () => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [modelId, setModelId] = useState<number>(0);
+  const [modelId, setModelId] = useState<string>("");
   const [prompt, setPrompt] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [result, setResult] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedResult = localStorage.getItem("result");
-      if (savedResult) setResult(savedResult);
+    if (transactionHash) {
+      toast.success("Transaction successful!");
+      console.log(transactionHash);
     }
-  }, []);
 
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>) => (e: ChangeEvent<HTMLInputElement>) => {
-    setter(e.target.value);
-  };
-
-  const saveToLocalStorage = (key: string, value: string) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(key, value);
+    if (error) {
+      toast.error("Transaction failed!");
+      console.log(error);
     }
-  };
+  }, [transactionHash, error]);
 
-  const interactWithContract = async (methodName: string, args: any[], value: string) => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (!accounts || accounts.length === 0) {
-          throw new Error('No accounts found');
-        }
-        const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contract_address, abi, signer);
-
-        const valueInEther = ethers.utils.parseEther(value);
-        const transaction = await contract[methodName](...args, { value: valueInEther });
-        const receipt = await transaction.wait();
-
-        setTransactionHash(receipt.transactionHash);
-        saveToLocalStorage("transactionHash", receipt.transactionHash);
-
-        if (methodName === "calculateAIResult") {
-          const aiResult = await contract.getAIResult(args[0], args[1]);
-          setResult(aiResult);
-          saveToLocalStorage("result", aiResult);
-        }
-      } catch (error: any) {
-        console.error(`Error calling ${methodName}:`, error);
-        setError(error.message);
-        saveToLocalStorage("error", error.message);
-      }
+  const getContract = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      const signer = provider.getSigner();
+      return new ethers.Contract(contractAddress, contractABI, signer);
     } else {
-      const errMsg = "Ethereum wallet is not available";
-      console.error(errMsg);
-      setError(errMsg);
-      saveToLocalStorage("error", errMsg);
+      throw new Error("Ethereum wallet is not connected");
     }
   };
 
-  useEffect(() => {
-    saveToLocalStorage("prompt", prompt);
-  }, [prompt]);
+  const calculateAIResult = async (modelId: string, prompt: string, ethValue: string): Promise<ContractResult | null> => {
+    try {
+      const contract = await getContract();
+      const tx = await contract.calculateAIResult(modelId, prompt, { value: ethers.utils.parseEther(ethValue) });
+      setTransactionHash(tx.hash);
+      const receipt = await tx.wait();
+      // Extract requestId and tokenId from the event logs
+      const event = receipt.events.find((event: any) => event.event === "promptRequest");
+      const [requestId, tokenId] = event.args;
+      return { requestId, tokenId };
+    } catch (err: any) {
+      setError(err.message);
+      return null;
+    }
+  };
+
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value);
 
   return {
     transactionHash,
@@ -93,6 +70,6 @@ export const useContract = (): UseContract => {
     setPrompt,
     setValue,
     handleInputChange,
-    interactWithContract
+    calculateAIResult,
   };
 };
