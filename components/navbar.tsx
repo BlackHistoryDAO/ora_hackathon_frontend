@@ -27,7 +27,6 @@ const Navbar = () => {
             <MetaMaskProvider debug={false} sdkOptions={sdkOptions}>
               <ConnectWallect />
             </MetaMaskProvider>
- 
             <ThemeToggle />
           </div>
           <div>
