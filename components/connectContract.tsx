@@ -1,13 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Card } from "./ui/card";
 import { useContract } from "@/hooks/useContract";
 import Image from "next/image";
 
 const ConnectContract = () => {
-
-  const [isLoading, setIsLoading] = useState(false);
-
   const {
     transactionHash,
     error,
@@ -19,27 +16,37 @@ const ConnectContract = () => {
     setPrompt,
     setValue,
     handleInputChange,
-    interactWithContract
+    calculateAIResult,
   } = useContract();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [tokenId, setTokenId] = useState<string | null>(null);
 
-  if (transactionHash) {
-    toast.success("Transaction successful!");
-    console.log(transactionHash);
-  }
+  useEffect(() => {
+    if (transactionHash) {
+      toast.success("Transaction successful!");
+      console.log(transactionHash);
+    }
 
-  if (error) {
-    toast.error("Transaction failed!");
-    console.log(error);
-  }
+    if (error) {
+      toast.error("Transaction failed!");
+      console.log(error);
+    }
+  }, [transactionHash, error]);
 
   const handleCallContract = async () => {
-    await interactWithContract("calculateAIResult", [modelId, prompt], value);
+    setLoading(true);
+    const result = await calculateAIResult(modelId, prompt, value);
+    if (result) {
+      setRequestId(result.requestId);
+      setTokenId(result.tokenId);
+    }
+    setLoading(false);
   };
 
-
   return (
-    <div className="container mx-auto p-4 flex gap-4">
-      <Card className="w-1/2 p-4">
+    <div className="container mx-auto p-4 flex flex-col gap-4">
+      <Card className="w-full p-4 mb-4">
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="modelId">Model ID:</label>
           <input
@@ -77,9 +84,20 @@ const ConnectContract = () => {
           Call Contract
         </button>
       </Card>
-      {result && (
+
+      {requestId && tokenId && (
         <div className="mt-4 p-4 bg-gray-100/20 border border-gray-400 text-gray-700 rounded">
-          <Image src={`https://ipfs.io/ipfs/${result}`} alt="Contract" width={300} height={300} />
+          {loading ? (
+            <div className="flex justify-center items-center mt-4">
+              <div className="loader border-t-transparent border-solid animate-spin rounded-full border-blue-400 border-8 h-16 w-16"></div>
+            </div>
+          ) : (
+            <div>
+              <p>Request ID: {requestId}</p>
+              <p>Token ID: {tokenId}</p>
+              {/* You can add more details here based on the response */}
+            </div>
+          )}
         </div>
       )}
     </div>
