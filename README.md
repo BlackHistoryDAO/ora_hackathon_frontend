@@ -1,4 +1,4 @@
-# NFTAid Creation Assistant
+# NFTAid: the Official NFT AIssistant
 
 ## Overview
 This repository contains the frontend code for NFTAid, the official NFT Assistant. This tool is designed to help users create NFTs leveraging AI, blockchain technologies, and smart contracts.
