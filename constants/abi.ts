@@ -265,6 +265,23 @@ export const abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getAllMetadata",
+    outputs: [
+      {
+        components: [
+          { internalType: "string", name: "image", type: "string" },
+          { internalType: "string", name: "prompt", type: "string" },
+        ],
+        internalType: "struct AiNftPrompt.TokenMetadata[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
     name: "getApproved",
     outputs: [{ internalType: "address", name: "", type: "address" }],
@@ -399,6 +416,13 @@ export const abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       { internalType: "address", name: "from", type: "address" },
       { internalType: "address", name: "to", type: "address" },
@@ -411,4 +435,4 @@ export const abi = [
   },
 ];
 
-export const contract_address = "0x2E17638BA8A316E20536A9D01eD50536F8990718";
+export const contract_address = "0x577Cd658805ef89a72Fa8a321D9b07CBD961f720";
