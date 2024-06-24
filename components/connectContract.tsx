@@ -15,12 +15,14 @@ const ConnectContract = () => {
     value,
     result,
     metadata,
+    allMetadata,
     setModelId,
     setPrompt,
     setValue,
     handleInputChange,
     calculateAIResult,
-    fetchNFTMetadata
+    fetchNFTMetadata,
+    fetchAllNFTMetadata
   } = useContract();
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenMetadata, setTokenMetadata] = useState<{ image: string; prompt: string } | null>(null);
@@ -28,16 +30,8 @@ const ConnectContract = () => {
   const [tokenId, setTokenId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (transactionHash) {
-      toast.success("Fetching the data successfully!");
-      console.log(transactionHash);
-    }
-
-    if (error) {
-      toast.error("Transaction failed!");
-      console.log(error);
-    }
-  }, [transactionHash, error]);
+    fetchAllNFTMetadata();
+  }, []);
 
   const handleCallContract = async () => {
     setLoading(true);
@@ -45,17 +39,17 @@ const ConnectContract = () => {
     if (result) {
       setRequestId(result.requestId.toString());
       setTokenId(result.tokenId.toString());
-      const metadata = await fetchNFTMetadata(modelId, prompt);
-      console.log("Fetched Metadata:", metadata);
+      const data = await fetchNFTMetadata(modelId, prompt);
+      console.log("Fetched Metadata:", data);
       if (metadata) {
-        setTokenMetadata(metadata);
+        setTokenMetadata(data);
       }
     }
     setLoading(false);
   };
 
   return (
-    <div className="container mx-2 p-4 flex flex-col gap-4">
+    <div className="container mx-2 p-4 flex justify-between gap-4">
       <Card className="w-full p-4 mb-4">
         <div className="mb-4 hidden">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="modelId">Model ID:</label>
@@ -95,23 +89,46 @@ const ConnectContract = () => {
         </button>
       </Card>
       {tokenMetadata && (
-        <div className="mt-4 p-4 bg-gray-100/20 border border-gray-400 text-gray-700 rounded">
+        <div className="mt-8 p-6 bg-gray-100/20 border border-gray-400 text-gray-700 rounded-lg shadow-md">
           {loading ? (
             <div className="flex justify-center items-center mt-4">
               <div className="loader border-t-transparent border-solid animate-spin rounded-full border-blue-400 border-8 h-16 w-16"></div>
             </div>
           ) : (
-            <div className="flex gap-4">
-              <div>
-                <Image src={`https://ipfs.io/ipfs/${tokenMetadata}`} height={300} width={300} alt="Result" />
-                <p>Token ID: {tokenId}</p>
-                <Link href={`https://sepolia.etherscan.io/${requestId}`}>Check on etherscan</Link>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col items-center">
+                <Image
+                  src={`https://ipfs.io/ipfs/${tokenMetadata}`}
+                  height={300}
+                  width={300}
+                  alt="Result"
+                  className="rounded-lg mb-4"
+                />
+                <p className="text-lg font-semibold">Token ID: {tokenId}</p>
+                <Link href={`https://sepolia.etherscan.io/${requestId}`} className="text-blue-500 hover:underline">Check on Etherscan</Link>
               </div>
-              <Button>Mint</Button>
+              <Button className="ml-4">Mint</Button>
             </div>
           )}
         </div>
       )}
+      <div className="grid grid-cols-3 gap-4">
+        {allMetadata.map((ele, index) => (
+          <Card key={index} className="p-4">
+            <h2 className="text-xl font-bold mb-2">Token Metadata {index + 1}</h2>
+            {ele && (
+              <div className="mt-2">
+                <Image
+                  src={`https://ipfs.io/ipfs/${ele}`}
+                  alt="Generated Image"
+                  width={300}
+                  height={300}
+                />
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
