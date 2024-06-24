@@ -10,18 +10,23 @@ interface ContractResult {
   tokenId: string;
 }
 
+interface NFTMetadata {
+  image: string;
+  prompt: string;
+}
+
 export const useContract = () => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [modelId, setModelId] = useState<string>("");
+  const [modelId, setModelId] = useState<string>("50");
   const [prompt, setPrompt] = useState<string>("");
-  const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string>("0.018");
   const [result, setResult] = useState<string | null>(null);
+  const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
 
   useEffect(() => {
     if (transactionHash) {
       toast.success("Transaction successful!");
-      console.log(transactionHash);
     }
 
     if (error) {
@@ -57,6 +62,18 @@ export const useContract = () => {
     }
   };
 
+  const fetchNFTMetadata = async (modelId: string, prompt: string) => {
+    try {
+      const contract = await getContract();
+      const metadata = await contract.getAIResult(modelId, prompt);
+      return metadata;
+    } catch (err: any) {
+      setError(err.message);
+      console.error(err);
+      throw err;
+    }
+  };
+
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value);
 
   return {
@@ -65,11 +82,13 @@ export const useContract = () => {
     modelId,
     prompt,
     value,
+    metadata,
     result,
     setModelId,
     setPrompt,
     setValue,
     handleInputChange,
     calculateAIResult,
+    fetchNFTMetadata
   };
 };
