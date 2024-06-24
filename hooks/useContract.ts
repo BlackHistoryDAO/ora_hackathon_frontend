@@ -29,11 +29,6 @@ export const useContract = () => {
     if (transactionHash) {
       toast.success("Transaction successful!");
     }
-
-    if (error) {
-      toast.error("Transaction failed!");
-      console.log(error);
-    }
   }, [transactionHash, error]);
 
   const getContract = async () => {
@@ -78,7 +73,7 @@ export const useContract = () => {
   const fetchAllNFTMetadata = async () => {
     try {
       const contract = await getContract();
-      const allMetadata = await contract.getAllAIResults();
+      const allMetadata = await contract.getAllMetadata();
       setAllMetadata(allMetadata);
     } catch (err: any) {
       setError(err.message);

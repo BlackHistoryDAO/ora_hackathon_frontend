@@ -13,7 +13,7 @@ const Navbar = () => {
     typeof window !== "undefined" ? window.location.host : "defaultHost";
 
   const sdkOptions = {
-    logging: { developerMode: false },
+    logging: { developerMode: true },
     checkInstallationImmediately: false,
     dappMetadata: {
       name: "Next-Metamask-Boilerplate",
