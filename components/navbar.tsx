@@ -6,6 +6,7 @@ import Background from "./background"
 import ConnectWallect from "./connect";
 import { MetaMaskProvider } from "@metamask/sdk-react";
 import ConnectContract from "./connectContract";
+import WordList from "@/components/wordList";
 
 const Navbar = () => {
   const host =
@@ -38,8 +39,9 @@ const Navbar = () => {
             />
           </div>
         </div>
-        <div className='flex gap-6'>
-          <ConnectContract />
+        <div className='flex flex-col gap-6'>
+          <WordList />
+          <ConnectContract />          
         </div>
       </div>
     </Background>
