@@ -6,7 +6,7 @@ interface BackgroundProps {
 const Background: React.FC<BackgroundProps> = ({ image, children }) => {
   return (
     <div 
-      className="w-screen h-screen bg-cover bg-center overflow-hidden "
+      className="w-full h-full bg-cover bg-center overflow-hidden "
       style={{ backgroundImage: `url(${image})` }}
     >
       {children}

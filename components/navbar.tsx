@@ -6,13 +6,14 @@ import Background from "./background"
 import ConnectWallect from "./connect";
 import { MetaMaskProvider } from "@metamask/sdk-react";
 import ConnectContract from "./connectContract";
+import WordList from "@/components/wordList";
 
 const Navbar = () => {
   const host =
     typeof window !== "undefined" ? window.location.host : "defaultHost";
 
   const sdkOptions = {
-    logging: { developerMode: false },
+    logging: { developerMode: true },
     checkInstallationImmediately: false,
     dappMetadata: {
       name: "Next-Metamask-Boilerplate",
@@ -27,7 +28,6 @@ const Navbar = () => {
             <MetaMaskProvider debug={false} sdkOptions={sdkOptions}>
               <ConnectWallect />
             </MetaMaskProvider>
- 
             <ThemeToggle />
           </div>
           <div>
@@ -39,8 +39,9 @@ const Navbar = () => {
             />
           </div>
         </div>
-        <div className='flex gap-6'>
-          <ConnectContract />
+        <div className='flex flex-col gap-6'>
+          <WordList />
+          <ConnectContract />          
         </div>
       </div>
     </Background>
