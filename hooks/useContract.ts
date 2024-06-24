@@ -23,6 +23,7 @@ export const useContract = () => {
   const [value, setValue] = useState<string>("0.018");
   const [result, setResult] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
+  const [allMetadata, setAllMetadata] = useState<NFTMetadata[]>([]);
 
   useEffect(() => {
     if (transactionHash) {
@@ -74,6 +75,18 @@ export const useContract = () => {
     }
   };
 
+  const fetchAllNFTMetadata = async () => {
+    try {
+      const contract = await getContract();
+      const allMetadata = await contract.getAllAIResults();
+      setAllMetadata(allMetadata);
+    } catch (err: any) {
+      setError(err.message);
+      console.error(err);
+      throw err;
+    }
+  }
+
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value);
 
   return {
@@ -83,12 +96,14 @@ export const useContract = () => {
     prompt,
     value,
     metadata,
+    allMetadata,
     result,
     setModelId,
     setPrompt,
     setValue,
     handleInputChange,
     calculateAIResult,
-    fetchNFTMetadata
+    fetchNFTMetadata,
+    fetchAllNFTMetadata,
   };
 };
